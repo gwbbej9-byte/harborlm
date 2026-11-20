@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "harborlm"
+version = "0.1.0"
+description = "Local GGUF chat on Linux: llama.cpp OpenAI server + Python TUI."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [{ name = "harborlm contributors" }]
+keywords = ["llama.cpp", "gguf", "tui", "openai-compatible", "local-llm"]
+dependencies = [
+  "httpx>=0.27",
+  "prompt_toolkit>=3.0.43",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pillow>=10.0"]
+shot = ["pillow>=10.0"]
+
+[project.scripts]
+harborlm = "harborlm.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["harborlm*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"

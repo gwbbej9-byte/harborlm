@@ -1,0 +1,25 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# weights — never vendor
+models/*.gguf
+models/*.bin
+*.gguf
+tiny.gguf
+
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

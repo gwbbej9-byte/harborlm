@@ -1,0 +1,13 @@
+# language: Dockerfile, file: Dockerfile.client, target: python:3.11-slim
+FROM python:3.11-slim
+
+WORKDIR /app
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+COPY pyproject.toml requirements.txt README.md LICENSE ./
+COPY harborlm ./harborlm
+RUN pip install --no-cache-dir .
+
+ENTRYPOINT ["python", "-m", "harborlm"]
+CMD ["chat", "--url", "http://llm:8080/v1", "--model", "tinyllama"]

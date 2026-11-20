@@ -1,0 +1,57 @@
+# language: YAML, file: compose/docker-compose.yml
+# llama.cpp OpenAI-compatible HTTP server (POST /v1/chat/completions, GET /v1/models).
+#
+# Image: ghcr.io/ggerganov/llama.cpp:server
+#   entrypoint is llama-server; flags below are passed as argv.
+# Model file is NOT in git. Fetch it first:
+#   ./scripts/fetch-tiny.sh          # writes models/tiny.gguf
+# Then from repo root:
+#   docker compose -f compose/docker-compose.yml up
+# Windows Docker Desktop (PowerShell, repo root):
+#   docker compose -f compose/docker-compose.yml up
+#
+# Client:
+#   python -m harborlm chat --url http://127.0.0.1:8080/v1 --model tinyllama
+#   python -m harborlm ping --url http://127.0.0.1:8080/v1
+
+services:
+  llm:
+    image: ghcr.io/ggerganov/llama.cpp:server
+    container_name: harborlm-llm
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../models:/models:ro
+    # -ngl 0 = CPU. NVIDIA: change to -ngl 99 and add:
+    #   gpus: all
+    command:
+      - -m
+      - /models/tiny.gguf
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8080"
+      - -c
+      - "2048"
+      - --alias
+      - tinyllama
+      - -ngl
+      - "0"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080'"]
+      interval: 10s
+      timeout: 3s
+      retries: 20
+      start_period: 20s
+
+  tui:
+    profiles: ["tui"]
+    build:
+      context: ..
+      dockerfile: Dockerfile.client
+    depends_on:
+      - llm
+    stdin_open: true
+    tty: true
+    command: ["chat", "--url", "http://llm:8080/v1", "--model", "tinyllama"]
